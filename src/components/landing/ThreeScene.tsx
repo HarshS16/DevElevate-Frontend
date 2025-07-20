@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Sphere } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
 function AnimatedSphere() {
@@ -15,14 +15,15 @@ function AnimatedSphere() {
   });
 
   return (
-    <Sphere ref={meshRef} args={[1, 32, 32]} position={[2, 0, 0]}>
+    <mesh ref={meshRef} position={[2, 0, 0]}>
+      <sphereGeometry args={[1, 32, 32]} />
       <meshStandardMaterial
         color="#3b82f6"
         transparent
         opacity={0.6}
         wireframe
       />
-    </Sphere>
+    </mesh>
   );
 }
 
