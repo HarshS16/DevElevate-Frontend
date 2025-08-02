@@ -55,8 +55,8 @@ export default function Landing() {
               </a>
             </nav>
             <div className="flex items-center gap-3">
-              <Button variant="ghost">Log In</Button>
-              <Button variant="gradient">Try for Free</Button>
+              <Button variant="ghost" onClick={() => window.location.href = '/auth'}>Log In</Button>
+              <Button variant="gradient" onClick={() => window.location.href = '/auth'}>Try for Free</Button>
             </div>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function Landing() {
               </motion.div>
               
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" variant="gradient" className="group">
+                <Button size="lg" variant="gradient" className="group" onClick={() => window.location.href = '/auth'}>
                   Try for Free
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
