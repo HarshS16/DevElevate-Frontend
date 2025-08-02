@@ -1,158 +1,212 @@
 import React from "react";
-import { StatusCard } from "@/components/dashboard/StatusCard";
-import { MetricsCard } from "@/components/dashboard/MetricsCard";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { 
   FileText, 
   Briefcase, 
-  FileEdit, 
-  Eye, 
-  Download, 
-  Target,
-  TrendingUp,
-  Users,
-  Clock,
-  Star
+  Plus,
+  Github,
+  Linkedin,
+  CheckCircle,
+  AlertCircle,
+  ExternalLink
 } from "lucide-react";
 
 export default function Dashboard() {
+  const { user } = useAuth();
+  const firstName = user?.user_metadata?.display_name?.split(' ')[0] || 'Developer';
+
+  // Mock data - replace with actual API calls
+  const resumeCount = 2;
+  const portfolioCount = 1;
+  const isGithubLinked = false;
+  const linkedinUrl = "";
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold">Welcome back, John</h1>
-        <p className="text-muted-foreground">
-          Track your progress and manage your developer career tools
-        </p>
-      </div>
+    <div className="space-y-8">
+      {/* Welcome & Quick Actions Section */}
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold">Welcome, {firstName}!</h1>
+          <p className="text-muted-foreground text-lg">
+            Let's refine your developer presence.
+          </p>
+        </div>
 
-      {/* Metrics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricsCard
-          title="Resume Score"
-          value="82/100"
-          change="+12 from last refinement"
-          changeType="positive"
-          icon={Target}
-        />
-        <MetricsCard
-          title="Portfolio Views"
-          value="245"
-          change="+18% this week"
-          changeType="positive"
-          icon={Eye}
-        />
-        <MetricsCard
-          title="Applications"
-          value="23"
-          change="5 pending responses"
-          changeType="neutral"
-          icon={FileEdit}
-        />
-        <MetricsCard
-          title="Profile Rating"
-          value="4.8/5"
-          change="Based on 12 reviews"
-          changeType="positive"
-          icon={Star}
-        />
-      </div>
-
-      {/* Status Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <StatusCard
-          title="Resume Status"
-          icon={FileText}
-          status="in-progress"
-          progress={75}
-          description="Your resume is 75% optimized for ATS systems. Add more quantified achievements."
-          actionText="Continue Refining"
-        />
-        
-        <StatusCard
-          title="Portfolio"
-          icon={Briefcase}
-          status="completed"
-          description="Your portfolio is live and performing well. 5 projects showcased with detailed case studies."
-          actionText="View Portfolio"
-        />
-        
-        <StatusCard
-          title="Cover Letter"
-          icon={FileEdit}
-          status="not-started"
-          description="Generate personalized cover letters for your job applications using AI."
-          actionText="Create Cover Letter"
-        />
-      </div>
-
-      {/* Recent Activity & Quick Actions */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Recent Activity */}
-        <Card className="card-elegant">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Clock className="h-5 w-5 mr-2" />
-              Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">Resume refined</p>
-                  <p className="text-xs text-muted-foreground">2 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-success rounded-full mt-2"></div>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">Portfolio updated</p>
-                  <p className="text-xs text-muted-foreground">1 day ago</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-warning rounded-full mt-2"></div>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">Cover letter generated</p>
-                  <p className="text-xs text-muted-foreground">3 days ago</p>
-                </div>
-              </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Button 
+            size="lg" 
+            variant="gradient" 
+            className="h-20 text-lg justify-start p-6"
+          >
+            <Plus className="h-6 w-6 mr-3" />
+            <div className="text-left">
+              <div className="font-semibold">Create New Resume</div>
+              <div className="text-sm opacity-90">Build your perfect resume</div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        <Card className="card-elegant">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <TrendingUp className="h-5 w-5 mr-2" />
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <Button variant="accent" className="w-full justify-start accent-glow">
-                <FileText className="h-4 w-4 mr-2" />
-                Refine Resume with AI
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Download className="h-4 w-4 mr-2" />
-                Download Latest Resume
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Eye className="h-4 w-4 mr-2" />
-                Preview Portfolio
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Users className="h-4 w-4 mr-2" />
-                Connect LinkedIn
-              </Button>
+          </Button>
+          
+          <Button 
+            size="lg" 
+            variant="accent" 
+            className="h-20 text-lg justify-start p-6"
+          >
+            <Briefcase className="h-6 w-6 mr-3" />
+            <div className="text-left">
+              <div className="font-semibold">Generate New Portfolio</div>
+              <div className="text-sm opacity-90">Showcase your projects</div>
             </div>
-          </CardContent>
-        </Card>
+          </Button>
+        </div>
+      </div>
+
+      {/* Your Content Overview Section */}
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold">Your Creations</h2>
+        
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card className="card-elegant">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-medium">Resumes</CardTitle>
+              <FileText className="h-5 w-5 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="text-2xl font-bold">{resumeCount}</div>
+                <p className="text-sm text-muted-foreground">
+                  You have {resumeCount} resume{resumeCount > 1 ? 's' : ''}.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Last updated: 2 days ago
+                </p>
+                <Button variant="outline" size="sm" className="w-full">
+                  View All Resumes
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="card-elegant">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-medium">Portfolios</CardTitle>
+              <Briefcase className="h-5 w-5 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="text-2xl font-bold">{portfolioCount}</div>
+                <p className="text-sm text-muted-foreground">
+                  You have {portfolioCount} portfolio{portfolioCount !== 1 ? 's' : ''}.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Published: {portfolioCount}
+                </p>
+                <Button variant="outline" size="sm" className="w-full">
+                  View All Portfolios
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Integrations & Profile Status Section */}
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold">Integrations & Profile</h2>
+        
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card className="card-elegant">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-medium flex items-center">
+                <Github className="h-5 w-5 mr-2" />
+                GitHub
+              </CardTitle>
+              {isGithubLinked ? (
+                <Badge variant="default" className="bg-success text-success-foreground">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Linked
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="bg-warning/20 text-warning-foreground">
+                  <AlertCircle className="h-3 w-3 mr-1" />
+                  Not Linked
+                </Badge>
+              )}
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {isGithubLinked ? (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      Username: your-username
+                    </p>
+                    <Button variant="outline" size="sm" className="w-full">
+                      Manage GitHub
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      Connect your GitHub to showcase your repositories
+                    </p>
+                    <Button variant="default" size="sm" className="w-full">
+                      Connect GitHub
+                    </Button>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="card-elegant">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-medium flex items-center">
+                <Linkedin className="h-5 w-5 mr-2" />
+                LinkedIn
+              </CardTitle>
+              {linkedinUrl ? (
+                <Badge variant="default" className="bg-success text-success-foreground">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Added
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="bg-warning/20 text-warning-foreground">
+                  <AlertCircle className="h-3 w-3 mr-1" />
+                  Not Added
+                </Badge>
+              )}
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {linkedinUrl ? (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      Profile URL added
+                    </p>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" className="flex-1">
+                        Edit LinkedIn
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      Add your LinkedIn profile URL
+                    </p>
+                    <Button variant="default" size="sm" className="w-full">
+                      Add LinkedIn Profile
+                    </Button>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
