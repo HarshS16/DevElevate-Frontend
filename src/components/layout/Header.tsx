@@ -12,13 +12,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, useUser } from "@clerk/clerk-react";
 
 export function Header() {
-  const { user, signOut } = useAuth();
+  const { signOut } = useAuth();
+  const { user } = useUser();
 
   const getDisplayName = () => {
-    return user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'User';
+    if (!user) return "User";
+    
+    // Try to get display name from Clerk user
+    if (user.firstName && user.lastName) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+    if (user.firstName) return user.firstName;
+    
+    // Fallback to email prefix
+    if (user.primaryEmailAddress?.emailAddress) {
+      return user.primaryEmailAddress.emailAddress.split('@')[0];
+    }
+    
+    return "User";
   };
 
   const getInitials = () => {
@@ -75,7 +89,7 @@ export function Header() {
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{getDisplayName()}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {user?.email}
+                    {user?.primaryEmailAddress?.emailAddress}
                   </p>
                 </div>
               </DropdownMenuLabel>
@@ -84,7 +98,7 @@ export function Header() {
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={signOut}>
+              <DropdownMenuItem onClick={() => signOut()}>
                 <LogOut className="mr-2 h-4 w-4" />
                 Log out
               </DropdownMenuItem>
