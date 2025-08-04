@@ -1,5 +1,5 @@
-import React from "react";
-import { useUser } from "@clerk/clerk-react";
+import React, { useState, useEffect } from "react";
+import { useUser, useAuth } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,16 +13,68 @@ import {
   AlertCircle,
   ExternalLink
 } from "lucide-react";
+import { CreateResumeModal } from "@/components/modals/CreateResumeModal";
+import { CreatePortfolioModal } from "@/components/modals/CreatePortfolioModal";
+import { LinkedInModal } from "@/components/modals/LinkedInModal";
+import { apiClient, setAuthToken } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
   const { user } = useUser();
+  const { getToken, userId } = useAuth();
+  const { toast } = useToast();
   const firstName = user?.firstName || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'Developer';
 
-  // Mock data - replace with actual API calls
-  const resumeCount = 2;
-  const portfolioCount = 1;
-  const isGithubLinked = false;
-  const linkedinUrl = "";
+  // Modal states
+  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
+  const [isLinkedInModalOpen, setIsLinkedInModalOpen] = useState(false);
+
+  // User data state
+  const [userProfile, setUserProfile] = useState({
+    resumeCount: 0,
+    portfolioCount: 0,
+    isGithubLinked: false,
+    linkedinUrl: "",
+    githubUsername: ""
+  });
+
+  // Set auth token for API client
+  useEffect(() => {
+    if (getToken) {
+      setAuthToken(getToken);
+      fetchUserProfile();
+    }
+  }, [getToken]);
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await apiClient.getProfile();
+      const profile = response.data;
+      setUserProfile({
+        resumeCount: profile.resumes?.length || 0,
+        portfolioCount: profile.portfolios?.length || 0,
+        isGithubLinked: !!profile.githubUsername,
+        linkedinUrl: profile.linkedinUrl || "",
+        githubUsername: profile.githubUsername || ""
+      });
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
+
+  const handleGithubConnect = () => {
+    if (userId) {
+      // Redirect to backend GitHub OAuth endpoint
+      window.location.href = `https://develevate-52lh.onrender.com/api/github/auth?state=${userId}`;
+    } else {
+      toast({
+        title: "Error",
+        description: "Unable to connect to GitHub. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -40,6 +92,7 @@ export default function Dashboard() {
             size="lg" 
             variant="gradient" 
             className="h-20 text-lg justify-start p-6"
+            onClick={() => setIsResumeModalOpen(true)}
           >
             <Plus className="h-6 w-6 mr-3" />
             <div className="text-left">
@@ -52,6 +105,7 @@ export default function Dashboard() {
             size="lg" 
             variant="accent" 
             className="h-20 text-lg justify-start p-6"
+            onClick={() => setIsPortfolioModalOpen(true)}
           >
             <Briefcase className="h-6 w-6 mr-3" />
             <div className="text-left">
@@ -74,9 +128,9 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="text-2xl font-bold">{resumeCount}</div>
+                <div className="text-2xl font-bold">{userProfile.resumeCount}</div>
                 <p className="text-sm text-muted-foreground">
-                  You have {resumeCount} resume{resumeCount > 1 ? 's' : ''}.
+                  You have {userProfile.resumeCount} resume{userProfile.resumeCount > 1 ? 's' : ''}.
                 </p>
                 <p className="text-xs text-muted-foreground">
                   Last updated: 2 days ago
@@ -95,12 +149,12 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="text-2xl font-bold">{portfolioCount}</div>
+                <div className="text-2xl font-bold">{userProfile.portfolioCount}</div>
                 <p className="text-sm text-muted-foreground">
-                  You have {portfolioCount} portfolio{portfolioCount !== 1 ? 's' : ''}.
+                  You have {userProfile.portfolioCount} portfolio{userProfile.portfolioCount !== 1 ? 's' : ''}.
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Published: {portfolioCount}
+                  Published: {userProfile.portfolioCount}
                 </p>
                 <Button variant="outline" size="sm" className="w-full">
                   View All Portfolios
@@ -122,7 +176,7 @@ export default function Dashboard() {
                 <Github className="h-5 w-5 mr-2" />
                 GitHub
               </CardTitle>
-              {isGithubLinked ? (
+              {userProfile.isGithubLinked ? (
                 <Badge variant="default" className="bg-success text-success-foreground">
                   <CheckCircle className="h-3 w-3 mr-1" />
                   Linked
@@ -136,10 +190,10 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {isGithubLinked ? (
+                {userProfile.isGithubLinked ? (
                   <>
                     <p className="text-sm text-muted-foreground">
-                      Username: your-username
+                      Username: {userProfile.githubUsername}
                     </p>
                     <Button variant="outline" size="sm" className="w-full">
                       Manage GitHub
@@ -150,7 +204,7 @@ export default function Dashboard() {
                     <p className="text-sm text-muted-foreground">
                       Connect your GitHub to showcase your repositories
                     </p>
-                    <Button variant="default" size="sm" className="w-full">
+                    <Button variant="default" size="sm" className="w-full" onClick={handleGithubConnect}>
                       Connect GitHub
                     </Button>
                   </>
@@ -165,7 +219,7 @@ export default function Dashboard() {
                 <Linkedin className="h-5 w-5 mr-2" />
                 LinkedIn
               </CardTitle>
-              {linkedinUrl ? (
+              {userProfile.linkedinUrl ? (
                 <Badge variant="default" className="bg-success text-success-foreground">
                   <CheckCircle className="h-3 w-3 mr-1" />
                   Added
@@ -179,16 +233,16 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {linkedinUrl ? (
+                {userProfile.linkedinUrl ? (
                   <>
                     <p className="text-sm text-muted-foreground">
                       Profile URL added
                     </p>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1">
+                      <Button variant="outline" size="sm" className="flex-1" onClick={() => setIsLinkedInModalOpen(true)}>
                         Edit LinkedIn
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => window.open(userProfile.linkedinUrl, '_blank')}>
                         <ExternalLink className="h-4 w-4" />
                       </Button>
                     </div>
@@ -198,7 +252,7 @@ export default function Dashboard() {
                     <p className="text-sm text-muted-foreground">
                       Add your LinkedIn profile URL
                     </p>
-                    <Button variant="default" size="sm" className="w-full">
+                    <Button variant="default" size="sm" className="w-full" onClick={() => setIsLinkedInModalOpen(true)}>
                       Add LinkedIn Profile
                     </Button>
                   </>
@@ -208,6 +262,24 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
+
+      {/* Modals */}
+      <CreateResumeModal 
+        open={isResumeModalOpen} 
+        onOpenChange={setIsResumeModalOpen}
+        onSuccess={fetchUserProfile}
+      />
+      <CreatePortfolioModal 
+        open={isPortfolioModalOpen} 
+        onOpenChange={setIsPortfolioModalOpen}
+        onSuccess={fetchUserProfile}
+      />
+      <LinkedInModal 
+        open={isLinkedInModalOpen} 
+        onOpenChange={setIsLinkedInModalOpen}
+        currentUrl={userProfile.linkedinUrl}
+        onSuccess={fetchUserProfile}
+      />
     </div>
   );
 }
